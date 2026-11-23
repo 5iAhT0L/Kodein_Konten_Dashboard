@@ -1,0 +1,77 @@
+[
+  {
+    "providerId": "meta",
+    "name": "Meta Graph API (Instagram & Facebook)",
+    "category": "social",
+    "targetAccount": "Instagram: @kodein.sch | Facebook: Kodein-Sch",
+    "status": "sandbox",
+    "lastSyncedAt": "2026-11-23T01:22:14.399Z",
+    "lastError": null,
+    "supportedMetrics": [
+      "Organik Impressions",
+      "Like",
+      "Comment",
+      "Share",
+      "Save"
+    ],
+    "unsupportedMetrics": [
+      "Repost (Tidak disediakan oleh API Meta)"
+    ]
+  },
+  {
+    "providerId": "youtube",
+    "name": "YouTube Data & Analytics API",
+    "category": "social",
+    "targetAccount": "YouTube: @sekolahITkodein",
+    "status": "sandbox",
+    "lastSyncedAt": "2026-11-23T01:22:14.425Z",
+    "lastError": null,
+    "supportedMetrics": [
+      "Views / Impressions",
+      "Likes",
+      "Comments",
+      "Shares"
+    ],
+    "unsupportedMetrics": [
+      "Save / Bookmark",
+      "Repost"
+    ]
+  },
+  {
+    "providerId": "tiktok",
+    "name": "TikTok Display API",
+    "category": "social",
+    "targetAccount": "TikTok: @kodein.sch",
+    "status": "sandbox",
+    "lastSyncedAt": "2026-11-23T01:22:14.451Z",
+    "lastError": null,
+    "supportedMetrics": [
+      "Video Views (Impressions)",
+      "Likes",
+      "Comments",
+      "Shares"
+    ],
+    "unsupportedMetrics": [
+      "Organik vs Ads Breakdown",
+      "Save per post"
+    ]
+  },
+  {
+    "providerId": "meta_ads",
+    "name": "Meta Marketing API (Ads Manager)",
+    "category": "ads",
+    "targetAccount": "Ad Account: KODEIN Ads (PMB Campaigns)",
+    "status": "sandbox",
+    "lastSyncedAt": "2026-11-23T01:22:14.483Z",
+    "lastError": null,
+    "supportedMetrics": [
+      "Leads (Hasil)",
+      "Spend",
+      "Clicks",
+      "Impressions",
+      "Reach",
+      "CTR"
+    ],
+    "unsupportedMetrics": []
+  }
+]
