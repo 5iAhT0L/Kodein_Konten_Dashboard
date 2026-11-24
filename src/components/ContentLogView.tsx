@@ -10,7 +10,9 @@ import {
   Trash2,
   CheckCircle2,
   X,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Clock,
+  Calendar
 } from 'lucide-react';
 import { ContentItem, WeekItem } from '@/lib/types';
 
@@ -21,6 +23,73 @@ interface ContentLogViewProps {
   onEditItem: (index: number) => void;
   onDeleteItem: (index: number) => void;
 }
+
+const getChannelBadgeClass = (channel: string) => {
+  switch (channel.toLowerCase()) {
+    case 'instagram':
+      return 'bg-pink-50 text-pink-700 border-pink-200/90';
+    case 'facebook':
+      return 'bg-blue-50 text-blue-700 border-blue-200/90';
+    case 'tiktok':
+      return 'bg-slate-900 text-white border-slate-700';
+    case 'youtube':
+      return 'bg-red-50 text-red-700 border-red-200/90';
+    case 'whatsapp':
+      return 'bg-emerald-50 text-emerald-700 border-emerald-200/90';
+    case 'tv internal':
+      return 'bg-indigo-50 text-indigo-700 border-indigo-200/90';
+    default:
+      return 'bg-slate-100 text-slate-700 border-slate-200';
+  }
+};
+
+const getProductionConfig = (status: string) => {
+  switch (status) {
+    case 'Selesai':
+      return {
+        badge: 'bg-emerald-50 text-emerald-700 border-emerald-200/80',
+        dot: 'bg-emerald-500',
+        Icon: CheckCircle2
+      };
+    case 'Dalam proses':
+      return {
+        badge: 'bg-amber-50 text-amber-700 border-amber-200/80',
+        dot: 'bg-amber-500',
+        Icon: Clock
+      };
+    default: // Direncanakan
+      return {
+        badge: 'bg-slate-100 text-slate-600 border-slate-200',
+        dot: 'bg-slate-400',
+        Icon: Calendar
+      };
+  }
+};
+
+const getPublicationConfig = (status: string) => {
+  switch (status) {
+    case 'Tayang':
+      return {
+        badge: 'bg-blue-50 text-blue-700 border-blue-200/80',
+        dot: 'bg-blue-500'
+      };
+    case 'Terjadwal':
+      return {
+        badge: 'bg-purple-50 text-purple-700 border-purple-200/80',
+        dot: 'bg-purple-500'
+      };
+    case 'Internal':
+      return {
+        badge: 'bg-amber-50 text-amber-700 border-amber-200/80',
+        dot: 'bg-amber-500'
+      };
+    default: // Belum tayang
+      return {
+        badge: 'bg-slate-100 text-slate-600 border-slate-200',
+        dot: 'bg-slate-400'
+      };
+  }
+};
 
 export const ContentLogView: React.FC<ContentLogViewProps> = ({
   items,
@@ -261,146 +330,168 @@ export const ContentLogView: React.FC<ContentLogViewProps> = ({
             </button>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-xs text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-600 font-bold uppercase tracking-wider text-[11px]">
-                  <th className="py-3 px-3 w-12 text-center">No</th>
-                  <th className="py-3 px-3 w-20">Pekan</th>
-                  <th className="py-3 px-3">Tanggal</th>
-                  <th className="py-3 px-4 min-w-[220px]">Nama / Kode Konten</th>
-                  <th className="py-3 px-3 min-w-[160px]">Format &amp; Tahap</th>
-                  <th className="py-3 px-3 text-center">Produksi</th>
-                  <th className="py-3 px-3 text-center">Status Tayang</th>
-                  <th className="py-3 px-3 min-w-[140px]">Platform</th>
-                  <th className="py-3 px-3">Bukti</th>
-                  <th className="py-3 px-4 min-w-[180px]">Catatan / Kendala</th>
-                  <th className="py-3 px-3 text-center w-24">Aksi</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {filteredItems.map((item, idx) => {
-                  const isDone = item.production === 'Selesai';
-                  const isPublished = item.publication === 'Tayang';
+          <div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-xs text-left border-collapse">
+                <thead>
+                  <tr className="sticky top-0 bg-slate-50/95 backdrop-blur-xs z-10 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider text-[11px]">
+                    <th className="py-3 px-3 w-12 text-center">No</th>
+                    <th className="py-3 px-3 w-24 text-center">Pekan</th>
+                    <th className="py-3 px-3 w-28">Tanggal</th>
+                    <th className="py-3 px-4 min-w-[220px]">Nama / Kode Konten</th>
+                    <th className="py-3 px-3 min-w-[160px]">Format &amp; Tahap</th>
+                    <th className="py-3 px-3 text-center w-32">Produksi</th>
+                    <th className="py-3 px-3 text-center w-36">Status Tayang</th>
+                    <th className="py-3 px-3 min-w-[150px]">Platform</th>
+                    <th className="py-3 px-3 text-center w-24">Bukti</th>
+                    <th className="py-3 px-4 min-w-[180px] max-w-[260px]">Catatan / Kendala</th>
+                    <th className="py-3 px-3 text-center w-24">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {filteredItems.map((item, idx) => {
+                    const prodConfig = getProductionConfig(item.production);
+                    const pubConfig = getPublicationConfig(item.publication);
 
-                  return (
-                    <tr
-                      key={item.name + idx}
-                      className="hover:bg-blue-50/30 transition-colors group"
-                    >
-                      <td className="py-3.5 px-3 text-center text-slate-400 font-mono text-[11px]">
-                        {idx + 1}
-                      </td>
-                      <td className="py-3.5 px-3 font-bold text-slate-800 whitespace-nowrap">
-                        {item.weekLabel}
-                      </td>
-                      <td className="py-3.5 px-3 whitespace-nowrap text-slate-600 font-medium">
-                        {item.day}
-                      </td>
-                      <td className="py-3.5 px-4">
-                        <span className="font-extrabold text-slate-900 block group-hover:text-blue-700 transition-colors">
-                          {item.name}
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-3">
-                        <span className="text-slate-800 font-semibold block">{item.format || '—'}</span>
-                        <span className="text-slate-400 text-[11px] block mt-0.5">{item.stage}</span>
-                      </td>
-                      <td className="py-3.5 px-3 text-center whitespace-nowrap">
-                        <span
-                          className={`inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${
-                            isDone
-                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                              : 'bg-amber-50 text-amber-700 border-amber-200'
-                          }`}
-                        >
-                          {isDone && <CheckCircle2 className="w-3 h-3 text-emerald-600" />}
-                          <span>{item.production}</span>
-                        </span>
-                      </td>
-                      <td className="py-3.5 px-3 text-center whitespace-nowrap">
-                        <span
-                          className={`inline-flex items-center gap-1 text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${
-                            isPublished
-                              ? 'bg-blue-50 text-blue-700 border-blue-200'
-                              : item.publication === 'Terjadwal'
-                              ? 'bg-purple-50 text-purple-700 border-purple-200'
-                              : 'bg-slate-100 text-slate-600 border-slate-200'
-                          }`}
-                        >
-                          {item.publication}
-                        </span>
-                        {item.publish && (
-                          <span className="text-[10px] text-slate-400 block mt-0.5 font-medium">
-                            {item.publish}
+                    return (
+                      <tr
+                        key={item.name + idx}
+                        className="even:bg-slate-50/40 hover:bg-blue-50/40 transition-colors group"
+                      >
+                        <td className="py-3.5 px-3 text-center text-slate-400 font-mono text-[11px]">
+                          {idx + 1}
+                        </td>
+                        <td className="py-3.5 px-3 text-center whitespace-nowrap">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200/60">
+                            {item.weekLabel}
                           </span>
-                        )}
-                      </td>
-                      <td className="py-3.5 px-3">
-                        <div className="flex flex-wrap gap-1">
-                          {item.channels.length > 0 ? (
-                            item.channels.map(ch => (
-                              <span
-                                key={ch}
-                                className="px-1.5 py-0.5 bg-slate-100 text-slate-700 rounded-md text-[10px] font-medium"
-                              >
-                                {ch}
-                              </span>
-                            ))
-                          ) : (
-                            <span className="text-slate-400">—</span>
+                        </td>
+                        <td className="py-3.5 px-3 whitespace-nowrap text-slate-600 font-mono text-xs tabular-nums font-medium">
+                          {item.day}
+                        </td>
+                        <td className="py-3.5 px-4">
+                          <span className="font-bold text-slate-900 block group-hover:text-blue-600 transition-colors text-xs leading-snug">
+                            {item.name}
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-3">
+                          <div className="flex flex-col gap-1 items-start">
+                            <span className="inline-block px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200/80">
+                              {item.format || '—'}
+                            </span>
+                            <span className="text-slate-500 text-[11px] leading-tight">
+                              {item.stage}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="py-3.5 px-3 text-center whitespace-nowrap">
+                          <span
+                            className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-full border shadow-2xs ${prodConfig.badge}`}
+                          >
+                            <prodConfig.Icon className="w-3 h-3 shrink-0" />
+                            <span>{item.production}</span>
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-3 text-center whitespace-nowrap">
+                          <span
+                            className={`inline-flex items-center gap-1.5 text-[11px] font-bold px-2.5 py-1 rounded-full border shadow-2xs ${pubConfig.badge}`}
+                          >
+                            <span className={`w-1.5 h-1.5 rounded-full ${pubConfig.dot}`} />
+                            <span>{item.publication}</span>
+                          </span>
+                          {item.publish && (
+                            <span className="text-[10px] text-slate-400 block mt-1 font-mono font-medium tabular-nums">
+                              {item.publish}
+                            </span>
                           )}
-                        </div>
-                      </td>
-                      <td className="py-3.5 px-3 whitespace-nowrap">
-                        {item.link ? (
-                          <a
-                            href={item.link}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:text-blue-800 inline-flex items-center gap-1 font-semibold hover:underline"
-                          >
-                            <ExternalLink className="w-3.5 h-3.5" />
-                            <span>Buka</span>
-                          </a>
-                        ) : (
-                          <span className="text-slate-400">—</span>
-                        )}
-                      </td>
-                      <td className="py-3.5 px-4 text-slate-600">
-                        {item.note ? (
-                          <p className="line-clamp-2 leading-relaxed" title={item.note}>
-                            {item.note}
-                          </p>
-                        ) : (
-                          <span className="text-slate-400">—</span>
-                        )}
-                      </td>
-                      <td className="py-3.5 px-3 text-center whitespace-nowrap">
-                        <div className="flex items-center justify-center gap-1">
-                          <button
-                            type="button"
-                            onClick={() => onEditItem(item.originalIndex)}
-                            className="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                            title="Ubah Konten"
-                          >
-                            <Edit3 className="w-3.5 h-3.5" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => onDeleteItem(item.originalIndex)}
-                            className="p-1.5 text-slate-500 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
-                            title="Hapus Konten"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                        </td>
+                        <td className="py-3.5 px-3">
+                          <div className="flex flex-wrap gap-1">
+                            {item.channels.length > 0 ? (
+                              item.channels.map(ch => (
+                                <span
+                                  key={ch}
+                                  className={`px-2 py-0.5 rounded-md text-[10px] font-bold border shadow-2xs ${getChannelBadgeClass(ch)}`}
+                                >
+                                  {ch}
+                                </span>
+                              ))
+                            ) : (
+                              <span className="text-slate-300 text-xs">—</span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="py-3.5 px-3 text-center whitespace-nowrap">
+                          {item.link ? (
+                            <a
+                              href={item.link}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200/70 transition-all active:scale-95 shadow-2xs"
+                            >
+                              <ExternalLink className="w-3 h-3" />
+                              <span>Buka</span>
+                            </a>
+                          ) : (
+                            <span className="text-slate-300 text-xs">—</span>
+                          )}
+                        </td>
+                        <td className="py-3.5 px-4 text-slate-600">
+                          {item.note ? (
+                            <p className="line-clamp-2 leading-relaxed text-xs" title={item.note}>
+                              {item.note}
+                            </p>
+                          ) : (
+                            <span className="text-slate-300 text-xs">—</span>
+                          )}
+                        </td>
+                        <td className="py-3.5 px-3 text-center whitespace-nowrap">
+                          <div className="flex items-center justify-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() => onEditItem(item.originalIndex)}
+                              className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                              title="Ubah Konten"
+                            >
+                              <Edit3 className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => onDeleteItem(item.originalIndex)}
+                              className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                              title="Hapus Konten"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Bottom Summary Bar */}
+            <div className="bg-slate-50/90 border-t border-slate-200 px-4 py-3 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500 font-medium">
+              <div>
+                Menampilkan <strong className="text-slate-800">{filteredItems.length}</strong> dari {items.length} konten
+              </div>
+              <div className="flex flex-wrap items-center gap-4 text-[11px]">
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                  <span>Selesai: <strong className="text-slate-800">{counts.all - counts.internal}</strong></span>
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-blue-500" />
+                  <span>Tayang: <strong className="text-slate-800">{counts.tayang}</strong></span>
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-purple-500" />
+                  <span>Terjadwal: <strong className="text-slate-800">{counts.terjadwal}</strong></span>
+                </span>
+              </div>
+            </div>
           </div>
         )}
       </div>
