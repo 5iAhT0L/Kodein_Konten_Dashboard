@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import os from 'os';
 import {
   ProviderId,
   IntegrationConnectionState,
@@ -9,8 +10,30 @@ import {
 import { MonthlyReportData, PlatformEngagementTuple, AdCampaignItem } from '../types';
 import { getReportByMonth, saveReport } from '../server/report-storage';
 
-const CONFIG_PATH = path.join(process.cwd(), '.data', 'integrations-config.json');
-const AUDIT_PATH = path.join(process.cwd(), '.data', 'sync-audit.json');
+function isServerless(): boolean {
+  return (
+    !!process.env.VERCEL ||
+    !!process.env.AWS_LAMBDA_FUNCTION_NAME ||
+    process.cwd().startsWith('/var/task')
+  );
+}
+
+function getWritableConfigPath(): string {
+  if (isServerless()) {
+    return path.join(os.tmpdir(), 'kodein-data', 'integrations-config.json');
+  }
+  return path.join(process.cwd(), '.data', 'integrations-config.json');
+}
+
+function getWritableAuditPath(): string {
+  if (isServerless()) {
+    return path.join(os.tmpdir(), 'kodein-data', 'sync-audit.json');
+  }
+  return path.join(process.cwd(), '.data', 'sync-audit.json');
+}
+
+let memoryConnections: IntegrationConnectionState[] | null = null;
+let memoryAuditLogs: SyncAuditEntry[] = [];
 
 const INITIAL_CONNECTIONS: IntegrationConnectionState[] = [
   {
@@ -60,36 +83,54 @@ const INITIAL_CONNECTIONS: IntegrationConnectionState[] = [
 ];
 
 function readConfig(): IntegrationConnectionState[] {
+  if (memoryConnections) return memoryConnections;
   try {
-    if (fs.existsSync(CONFIG_PATH)) {
-      return JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf-8'));
+    const p = getWritableConfigPath();
+    if (fs.existsSync(p)) {
+      const data = JSON.parse(fs.readFileSync(p, 'utf-8'));
+      memoryConnections = data;
+      return data;
     }
   } catch {}
   return INITIAL_CONNECTIONS;
 }
 
 function writeConfig(connections: IntegrationConnectionState[]) {
-  const dir = path.dirname(CONFIG_PATH);
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(CONFIG_PATH, JSON.stringify(connections, null, 2), 'utf-8');
+  memoryConnections = connections;
+  try {
+    const p = getWritableConfigPath();
+    const dir = path.dirname(p);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(p, JSON.stringify(connections, null, 2), 'utf-8');
+  } catch (err) {
+    console.warn('Could not write integration config to disk:', err);
+  }
 }
 
 export function getAuditLogs(): SyncAuditEntry[] {
+  if (memoryAuditLogs.length > 0) return memoryAuditLogs;
   try {
-    if (fs.existsSync(AUDIT_PATH)) {
-      return JSON.parse(fs.readFileSync(AUDIT_PATH, 'utf-8'));
+    const p = getWritableAuditPath();
+    if (fs.existsSync(p)) {
+      const data = JSON.parse(fs.readFileSync(p, 'utf-8'));
+      memoryAuditLogs = data;
+      return data;
     }
   } catch {}
   return [];
 }
 
 function appendAuditLog(entry: SyncAuditEntry) {
-  const current = getAuditLogs();
-  current.unshift(entry);
-  const trimmed = current.slice(0, 50); // Keep last 50 entries
-  const dir = path.dirname(AUDIT_PATH);
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(AUDIT_PATH, JSON.stringify(trimmed, null, 2), 'utf-8');
+  memoryAuditLogs.unshift(entry);
+  memoryAuditLogs = memoryAuditLogs.slice(0, 50); // Keep last 50 entries
+  try {
+    const p = getWritableAuditPath();
+    const dir = path.dirname(p);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(p, JSON.stringify(memoryAuditLogs, null, 2), 'utf-8');
+  } catch (err) {
+    console.warn('Could not write sync audit to disk:', err);
+  }
 }
 
 export async function getIntegrationStates(): Promise<IntegrationConnectionState[]> {
