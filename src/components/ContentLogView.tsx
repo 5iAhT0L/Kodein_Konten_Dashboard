@@ -84,6 +84,17 @@ export const ContentLogView: React.FC<ContentLogViewProps> = ({
     });
   }, [enrichedItems, searchQuery, selectedWeekFilter, selectedPublicationFilter]);
 
+  // Status counts for quick chips
+  const counts = useMemo(() => {
+    return {
+      all: items.length,
+      tayang: items.filter(i => i.publication === 'Tayang').length,
+      terjadwal: items.filter(i => i.publication === 'Terjadwal').length,
+      internal: items.filter(i => i.publication === 'Internal').length,
+      belumTayang: items.filter(i => i.publication === 'Belum tayang').length
+    };
+  }, [items]);
+
   return (
     <div className="space-y-6">
       {/* Top Action & Stats Bar */}
@@ -173,6 +184,57 @@ export const ContentLogView: React.FC<ContentLogViewProps> = ({
         <span className="text-slate-400 text-xs ml-auto font-medium">
           Menampilkan <strong className="text-slate-700">{filteredItems.length}</strong> dari {items.length} konten
         </span>
+      </div>
+
+      {/* Quick Filter Status Chips */}
+      <div className="flex flex-wrap items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setSelectedPublicationFilter('all')}
+          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+            selectedPublicationFilter === 'all'
+              ? 'bg-blue-600 text-white shadow-sm shadow-blue-500/20'
+              : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
+          }`}
+        >
+          Semua Konten ({counts.all})
+        </button>
+        <button
+          type="button"
+          onClick={() => setSelectedPublicationFilter('Tayang')}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+            selectedPublicationFilter === 'Tayang'
+              ? 'bg-emerald-600 text-white shadow-sm shadow-emerald-500/20'
+              : 'bg-white border border-slate-200 text-slate-600 hover:bg-emerald-50 hover:text-emerald-700'
+          }`}
+        >
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+          <span>Tayang ({counts.tayang})</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setSelectedPublicationFilter('Terjadwal')}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+            selectedPublicationFilter === 'Terjadwal'
+              ? 'bg-purple-600 text-white shadow-sm shadow-purple-500/20'
+              : 'bg-white border border-slate-200 text-slate-600 hover:bg-purple-50 hover:text-purple-700'
+          }`}
+        >
+          <span className="w-1.5 h-1.5 rounded-full bg-purple-500" />
+          <span>Terjadwal ({counts.terjadwal})</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setSelectedPublicationFilter('Internal')}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+            selectedPublicationFilter === 'Internal'
+              ? 'bg-amber-600 text-white shadow-sm shadow-amber-500/20'
+              : 'bg-white border border-slate-200 text-slate-600 hover:bg-amber-50 hover:text-amber-700'
+          }`}
+        >
+          <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+          <span>Internal ({counts.internal})</span>
+        </button>
       </div>
 
       {/* Table Container */}

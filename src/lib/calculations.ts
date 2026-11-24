@@ -170,7 +170,7 @@ export function calculateEngagementRows(
       status = 'Belum ada data';
     } else if (t.includes(null)) {
       status = 'Belum lengkap';
-    } else if (totalImpressions === 0 && (totalInteractions ?? 0) === 0) {
+    } else if (totalImpressions === 0) {
       status = 'Tanpa impressions';
     } else if (er !== null) {
       status = er >= targetEr ? 'Tercapai' : 'Di bawah target';

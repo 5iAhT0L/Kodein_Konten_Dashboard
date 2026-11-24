@@ -9,15 +9,17 @@ import {
   formatPeriodRangeIndo
 } from './calculations';
 
+export function sanitizeCsvValue(val: unknown): string {
+  let str = String(val ?? '');
+  // Protect against Excel formula injection (=, +, -, @, \t, \r)
+  if (typeof val === 'string' && /^[=+\-@\t\r]/.test(str)) {
+    str = `'${str}`;
+  }
+  return `"${str.replace(/"/g, '""')}"`;
+}
+
 export function exportReportToCsv(report: MonthlyReportData) {
-  const sanitize = (val: unknown): string => {
-    let str = String(val ?? '');
-    // Protect against Excel formula injection
-    if (typeof val === 'string' && /^[=+\-@]/.test(str)) {
-      str = `'${str}`;
-    }
-    return `"${str.replace(/"/g, '""')}"`;
-  };
+  const sanitize = sanitizeCsvValue;
 
   const rows: string[][] = [
     ['LAPORAN KERJA BULANAN TIM BRANDING & MARKETING KODEIN'],

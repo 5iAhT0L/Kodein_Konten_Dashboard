@@ -99,13 +99,24 @@ export const LeadsAdsView: React.FC<LeadsAdsViewProps> = ({
       </div>
 
       {/* Campaigns Table */}
-      <div className="bg-white rounded-xl border border-slate-200/90 shadow-sm overflow-hidden">
+      <div className="bg-white rounded-2xl border border-slate-200/90 shadow-sm overflow-hidden">
         {enrichedAds.length === 0 ? (
-          <div className="text-center py-12 px-4 text-slate-500">
-            <p className="font-semibold text-sm">Belum ada campaign iklan untuk periode ini.</p>
-            <p className="text-xs text-slate-400 mt-1">
-              Klik &ldquo;+ Tambah Campaign&rdquo; untuk mencatat performa iklan.
+          <div className="text-center py-16 px-4">
+            <div className="h-12 w-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center mx-auto mb-3">
+              <Megaphone className="w-6 h-6" />
+            </div>
+            <p className="font-bold text-slate-800 text-sm">Belum ada campaign iklan untuk periode ini</p>
+            <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
+              Catat performa Meta Ads, Google Ads, atau TikTok Ads untuk mengukur efektivitas biaya per leads PMB.
             </p>
+            <button
+              type="button"
+              onClick={onAddCampaign}
+              className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold rounded-xl shadow-md shadow-purple-500/20 transition-all active:scale-95"
+            >
+              <PlusCircle className="w-3.5 h-3.5" />
+              <span>Tambah Campaign Pertama</span>
+            </button>
           </div>
         ) : (
           <div className="overflow-x-auto">

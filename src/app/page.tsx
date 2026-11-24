@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Header } from '@/components/Header';
 import { OverviewCards } from '@/components/OverviewCards';
+import { ActionableInsights } from '@/components/ActionableInsights';
 import { UnifiedWeeklyView } from '@/components/UnifiedWeeklyView';
 import { EngagementView } from '@/components/EngagementView';
 import { ContentLogView } from '@/components/ContentLogView';
@@ -31,7 +32,7 @@ import {
 } from '@/lib/calculations';
 import { SAMPLE_SEPTEMBER_2026 } from '@/lib/sample-data';
 import { exportReportToCsv } from '@/lib/csv-export';
-import { Layers, BarChart2, FileText, Megaphone } from 'lucide-react';
+import { Layers, BarChart2, FileText, Megaphone, Save } from 'lucide-react';
 
 function DashboardContent() {
   const { showToast, confirm } = useToast();
@@ -216,6 +217,31 @@ function DashboardContent() {
   const handlePrint = () => {
     window.print();
   };
+
+  // Global Keyboard Shortcuts (Ctrl+S for Save, Ctrl+P for Print)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't trigger if user is inside an open modal or typing in input/textarea (except Ctrl+S which is always save)
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        if (!isSaving && !isSampleMode) {
+          handleSaveReport();
+        } else if (isSampleMode) {
+          showToast(
+            'warning',
+            'Mode Contoh Aktif',
+            'Tidak dapat menyimpan dalam mode contoh. Silakan keluar dari mode contoh terlebih dahulu.'
+          );
+        }
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p') {
+        e.preventDefault();
+        handlePrint();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleSaveReport, isSaving, isSampleMode, showToast]);
 
   // Content Handlers
   const handleOpenAddContent = () => {
@@ -420,6 +446,13 @@ function DashboardContent() {
         {/* Top Executive Overview Cards */}
         <OverviewCards cards={overviewCards} />
 
+        {/* Actionable Insights & Operational Alerts */}
+        <ActionableInsights
+          report={report}
+          onNavigateTab={setActiveTab}
+          onOpenIntegrations={() => setIntegrationModalOpen(true)}
+        />
+
         {/* Tab Navigation (shadcn/ui Segmented Pill Control) */}
         <div className="flex items-center justify-between border-b border-slate-200/80 pb-4 mb-6">
           <div className="inline-flex p-1 bg-slate-200/70 rounded-xl gap-1 overflow-x-auto max-w-full">
@@ -533,6 +566,32 @@ function DashboardContent() {
           />
         )}
       </main>
+
+      {/* Floating Unsaved Changes Alert Bar (Shadcn / Toast style) */}
+      {isDirty && !isSampleMode && (
+        <div className="fixed bottom-6 right-6 z-40 transition-all duration-300 animate-in fade-in slide-in-from-bottom-4 print:hidden">
+          <div className="flex items-center gap-3 bg-slate-900/95 text-white pl-4 pr-3 py-2.5 rounded-2xl shadow-2xl border border-amber-500/40 backdrop-blur-md">
+            <div className="flex items-center gap-2">
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500"></span>
+              </span>
+              <span className="text-xs font-semibold text-amber-200">
+                Ada perubahan belum disimpan
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={handleSaveReport}
+              disabled={isSaving}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl shadow-md shadow-blue-500/30 transition-all active:scale-95 disabled:opacity-50"
+            >
+              <Save className="w-3.5 h-3.5" />
+              <span>{isSaving ? 'Menyimpan...' : 'Simpan (Ctrl+S)'}</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <footer className="mt-auto py-6 border-t border-slate-200 bg-white text-slate-400 text-xs text-center print:hidden">

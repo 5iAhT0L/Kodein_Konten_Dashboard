@@ -1,5 +1,33 @@
 [
   {
+    "id": "audit_1795482685722",
+    "providerId": "meta_ads",
+    "timestamp": "2026-11-24T01:11:25.699Z",
+    "status": "success",
+    "message": "Berhasil memperbarui data campaign Meta Ads PMB KODEIN"
+  },
+  {
+    "id": "audit_1795482685683",
+    "providerId": "tiktok",
+    "timestamp": "2026-11-24T01:11:25.658Z",
+    "status": "success",
+    "message": "Berhasil menarik video metrics TikTok @kodein.sch"
+  },
+  {
+    "id": "audit_1795482685644",
+    "providerId": "youtube",
+    "timestamp": "2026-11-24T01:11:25.622Z",
+    "status": "success",
+    "message": "Berhasil menarik statistik kanal YouTube @sekolahITkodein"
+  },
+  {
+    "id": "audit_1795482685609",
+    "providerId": "meta",
+    "timestamp": "2026-11-24T01:11:25.585Z",
+    "status": "success",
+    "message": "Berhasil menarik 2 akun Meta (Instagram @kodein.sch & Facebook Page)"
+  },
+  {
     "id": "audit_1795396934499",
     "providerId": "meta_ads",
     "timestamp": "2026-11-23T01:22:14.483Z",
