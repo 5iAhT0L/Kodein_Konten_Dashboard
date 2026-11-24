@@ -12,8 +12,16 @@ import {
   X,
   FileSpreadsheet,
   Clock,
-  Calendar
+  Calendar,
+  Tv
 } from 'lucide-react';
+import {
+  SiInstagram,
+  SiFacebook,
+  SiTiktok,
+  SiYoutube,
+  SiWhatsapp
+} from 'react-icons/si';
 import { ContentItem, WeekItem } from '@/lib/types';
 
 interface ContentLogViewProps {
@@ -24,14 +32,79 @@ interface ContentLogViewProps {
   onDeleteItem: (index: number) => void;
 }
 
-const CHANNEL_SHORT: Record<string, string> = {
-  Instagram: 'IG',
-  Facebook: 'FB',
-  TikTok: 'TT',
-  YouTube: 'YT',
-  WhatsApp: 'WA',
-  'TV internal': 'TV',
-  Lainnya: 'Oth'
+const renderChannelIcon = (ch: string) => {
+  switch (ch.toLowerCase()) {
+    case 'instagram':
+      return (
+        <span
+          key={ch}
+          title="Instagram (@kodein.sch)"
+          className="inline-flex items-center justify-center w-5 h-5 rounded-md bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 text-white shadow-2xs hover:scale-110 transition-transform shrink-0"
+        >
+          <SiInstagram className="w-3 h-3" />
+        </span>
+      );
+    case 'facebook':
+      return (
+        <span
+          key={ch}
+          title="Facebook (Kodein-Sch)"
+          className="inline-flex items-center justify-center w-5 h-5 rounded-md bg-[#1877F2] text-white shadow-2xs hover:scale-110 transition-transform shrink-0"
+        >
+          <SiFacebook className="w-3 h-3" />
+        </span>
+      );
+    case 'tiktok':
+      return (
+        <span
+          key={ch}
+          title="TikTok (@kodein.sch)"
+          className="inline-flex items-center justify-center w-5 h-5 rounded-md bg-black text-white shadow-2xs hover:scale-110 transition-transform shrink-0"
+        >
+          <SiTiktok className="w-2.5 h-2.5" />
+        </span>
+      );
+    case 'youtube':
+      return (
+        <span
+          key={ch}
+          title="YouTube (@sekolahITkodein)"
+          className="inline-flex items-center justify-center w-5 h-5 rounded-md bg-[#FF0000] text-white shadow-2xs hover:scale-110 transition-transform shrink-0"
+        >
+          <SiYoutube className="w-3 h-3" />
+        </span>
+      );
+    case 'whatsapp':
+      return (
+        <span
+          key={ch}
+          title="WhatsApp Channel"
+          className="inline-flex items-center justify-center w-5 h-5 rounded-md bg-[#25D366] text-white shadow-2xs hover:scale-110 transition-transform shrink-0"
+        >
+          <SiWhatsapp className="w-3 h-3" />
+        </span>
+      );
+    case 'tv internal':
+      return (
+        <span
+          key={ch}
+          title="TV Internal KODEIN"
+          className="inline-flex items-center justify-center w-5 h-5 rounded-md bg-indigo-600 text-white shadow-2xs hover:scale-110 transition-transform shrink-0"
+        >
+          <Tv className="w-3 h-3" />
+        </span>
+      );
+    default:
+      return (
+        <span
+          key={ch}
+          title={ch}
+          className="inline-flex items-center justify-center w-5 h-5 rounded-md bg-slate-600 text-white text-[9px] font-bold shadow-2xs hover:scale-110 transition-transform shrink-0"
+        >
+          {ch.slice(0, 2).toUpperCase()}
+        </span>
+      );
+  }
 };
 
 function formatDayMonth(dayStr: string): string {
@@ -383,17 +456,9 @@ export const ContentLogView: React.FC<ContentLogViewProps> = ({
 
                         {/* Platform Channels */}
                         <td className="py-2.5 px-3">
-                          <div className="flex items-center gap-1 flex-nowrap overflow-hidden">
+                          <div className="flex items-center gap-1.5 flex-nowrap overflow-hidden">
                             {item.channels.length > 0 ? (
-                              item.channels.map(ch => (
-                                <span
-                                  key={ch}
-                                  title={ch}
-                                  className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-600 border border-slate-200/60 whitespace-nowrap"
-                                >
-                                  {CHANNEL_SHORT[ch] || ch}
-                                </span>
-                              ))
+                              item.channels.map(ch => renderChannelIcon(ch))
                             ) : (
                               <span className="text-slate-300 text-xs">—</span>
                             )}
